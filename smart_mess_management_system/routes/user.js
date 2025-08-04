@@ -1,0 +1,91 @@
+/*const express = require('express');
+const router = express.Router();
+const multer = require('multer');
+const User = require('../models/user'); // Assume you have a User model
+
+// Setup multer for file uploads (profile picture)
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Create unique filename
+  }
+});
+const upload = multer({ storage: storage });
+
+// Mock user session (In real case, you'll retrieve from DB or authentication system)
+router.use((req, res, next) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+  next();
+});
+
+
+module.exports = router;*/
+
+
+
+const express = require("express");
+const router = express.Router();
+const multer = require("multer");
+const path = require("path");
+const User = require("../models/user");
+
+// Ensure authenticated
+router.use((req, res, next) => {
+    if (!req.session.userId) {
+        return res.redirect("/auth/login");
+    }
+    next();
+});
+
+// Setup multer for profile pic uploads
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "public/uploads/");
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname));
+    }
+});
+const upload = multer({ storage });
+
+// Show profile
+router.get("/profile", async (req, res) => {
+    const user = await User.findById(req.session.userId);
+    res.render("profile", { user });
+});
+
+// Show the Edit Profile page
+router.get("/edit", async (req, res) => {
+  const user = await User.findById(req.session.userId);
+  res.render("editProfile", { user });
+});
+
+
+// Update profile info
+router.post("/profile/update", async (req, res) => {
+    const { name, mobile, year, branch } = req.body;
+    await User.findByIdAndUpdate(req.session.userId, { name, mobile, year, branch });
+    res.redirect("/user/profile");
+});
+
+// Upload profile pic
+router.post("/profile/upload", upload.single("profilePicture"), async (req, res) => {
+  const profilePath = "/uploads/" + req.file.filename;
+  await User.findByIdAndUpdate(req.session.userId, { profilePicture: profilePath });
+  res.redirect("/user/profile");
+});
+
+
+// Upload profile pic
+router.post("/profile/upload", upload.single("profilePicture"), async (req, res) => {
+    const profilePath = "/uploads/" + req.file.filename;
+    await User.findByIdAndUpdate(req.session.userId, { profilePicture: profilePath });
+    res.redirect("/user/profile");
+});
+
+module.exports = router;
+

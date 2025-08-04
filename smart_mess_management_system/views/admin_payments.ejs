@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payments</title>
+</head>
+<body>
+    <h2>Payment Records</h2>
+    <table border="1">
+        <tr>
+            <th>User</th><th>Amount</th><th>Date</th>
+        </tr>
+        <% payments.forEach(p => { %>
+        <tr>
+            <td><%= p.userId.name %></td>
+            <td><%= p.amount %></td>
+            <td><%= new Date(p.date).toLocaleDateString() %></td>
+        </tr>
+        <% }) %>
+    </table>
+</body>
+</html>
